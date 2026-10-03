@@ -1,0 +1,8 @@
+{
+  "name": "Remix Surat Penawaran Pro - PWA Pembuat Surat Penawaran \u0026 PDF Resmi",
+  "description": "Aplikasi Surat Penawaran Profesional berbasis PWA untuk kontraktor, supplier, jasa AC, engineering, dan konstruksi. Dilengkapi kop surat resmi, terbilang otomatis, tanda tangan digital, stempel, dan cetak PDF premium.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

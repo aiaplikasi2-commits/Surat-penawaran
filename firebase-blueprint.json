@@ -1,0 +1,162 @@
+{
+  "entities": {
+    "CompanyProfile": {
+      "title": "CompanyProfile",
+      "description": "Company profile used for quotation letterhead (Kop Surat)",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 200 },
+        "logoUrl": { "type": "string", "maxLength": 500000 },
+        "address": { "type": "string", "maxLength": 500 },
+        "city": { "type": "string", "maxLength": 100 },
+        "postalCode": { "type": "string", "maxLength": 20 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "whatsapp": { "type": "string", "maxLength": 50 },
+        "email": { "type": "string", "maxLength": 150 },
+        "website": { "type": "string", "maxLength": 150 },
+        "npwp": { "type": "string", "maxLength": 50 },
+        "directorName": { "type": "string", "maxLength": 150 },
+        "directorTitle": { "type": "string", "maxLength": 100 },
+        "signatureUrl": { "type": "string", "maxLength": 500000 },
+        "stampUrl": { "type": "string", "maxLength": 500000 },
+        "backgroundUrl": { "type": "string", "maxLength": 500000 },
+        "isDefault": { "type": "boolean" },
+        "logoPosition": { "type": "string", "maxLength": 20 },
+        "logoSize": { "type": "number" },
+        "companyNameSize": { "type": "number" },
+        "companyDetailsSize": { "type": "number" },
+        "headerAlignment": { "type": "string", "maxLength": 20 },
+        "letterheadDividerStyle": { "type": "string", "maxLength": 20 },
+        "logoOffsetX": { "type": "number" },
+        "logoOffsetY": { "type": "number" },
+        "logoScalePercent": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "name"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Customer master record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 200 },
+        "companyName": { "type": "string", "maxLength": 200 },
+        "pic": { "type": "string", "maxLength": 150 },
+        "address": { "type": "string", "maxLength": 500 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "whatsapp": { "type": "string", "maxLength": 50 },
+        "email": { "type": "string", "maxLength": 150 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "name"]
+    },
+    "WorkItem": {
+      "title": "WorkItem",
+      "description": "Master work items and service catalog",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 250 },
+        "category": { "type": "string", "maxLength": 100 },
+        "price": { "type": "number" },
+        "unit": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "name", "price", "unit"]
+    },
+    "Quotation": {
+      "title": "Quotation",
+      "description": "Official business quotation document",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "quotationNumber": { "type": "string", "maxLength": 150 },
+        "date": { "type": "string", "maxLength": 50 },
+        "toRecipient": { "type": "string", "maxLength": 200 },
+        "customerCompany": { "type": "string", "maxLength": 200 },
+        "customerPic": { "type": "string", "maxLength": 150 },
+        "customerAddress": { "type": "string", "maxLength": 500 },
+        "subject": { "type": "string", "maxLength": 300 },
+        "companyProfileId": { "type": "string", "maxLength": 100 },
+        "openingText": { "type": "string", "maxLength": 3000 },
+        "closingText": { "type": "string", "maxLength": 2000 },
+        "subtotal": { "type": "number" },
+        "discountType": { "type": "string", "maxLength": 20 },
+        "discountValue": { "type": "number" },
+        "discountAmount": { "type": "number" },
+        "ppnPercent": { "type": "number" },
+        "ppnAmount": { "type": "number" },
+        "grandTotal": { "type": "number" },
+        "terbilang": { "type": "string", "maxLength": 1000 },
+        "paymentTerms": { "type": "string", "maxLength": 1000 },
+        "validityPeriod": { "type": "string", "maxLength": 500 },
+        "workDuration": { "type": "string", "maxLength": 500 },
+        "warranty": { "type": "string", "maxLength": 500 },
+        "additionalNotes": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "maxLength": 30 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "quotationNumber", "grandTotal", "status"]
+    },
+    "QuotationTemplate": {
+      "title": "QuotationTemplate",
+      "description": "Pre-made text templates for quotation body and terms",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "type": { "type": "string", "maxLength": 50 },
+        "content": { "type": "string", "maxLength": 5000 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "type", "content"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User preferences and number formatting",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "numberFormat": { "type": "string", "maxLength": 150 },
+        "currentSequence": { "type": "number" },
+        "sessionTimeoutMinutes": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId"]
+    }
+  },
+  "firestore": {
+    "/companies/{companyId}": {
+      "schema": "CompanyProfile",
+      "description": "Stores company profiles for letterhead and signature"
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customer contacts and company data"
+    },
+    "/items/{itemId}": {
+      "schema": "WorkItem",
+      "description": "Work and service catalog items"
+    },
+    "/quotations/{quotationId}": {
+      "schema": "Quotation",
+      "description": "Quotation documents and line items"
+    },
+    "/templates/{templateId}": {
+      "schema": "QuotationTemplate",
+      "description": "Reusable quotation letter templates and notes"
+    },
+    "/settings/{userId}": {
+      "schema": "UserSettings",
+      "description": "User specific app configuration and numbering format"
+    }
+  }
+}

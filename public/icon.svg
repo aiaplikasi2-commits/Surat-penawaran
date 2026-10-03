@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="docGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f1f5f9" />
+    </linearGradient>
+  </defs>
+  <!-- Background with rounded squircle safe zone -->
+  <rect width="512" height="512" rx="104" fill="url(#bgGrad)" />
+  
+  <!-- Subtle Grid Accent -->
+  <path d="M64 160h384M64 256h384M64 352h384" stroke="rgba(255,255,255,0.04)" stroke-width="2"/>
+  
+  <!-- Document Sheet -->
+  <g transform="translate(116, 80)">
+    <!-- Document shadow -->
+    <rect x="6" y="8" width="268" height="344" rx="16" fill="rgba(0,0,0,0.3)" />
+    <!-- Document main body -->
+    <rect width="280" height="352" rx="16" fill="url(#docGrad)" stroke="#cbd5e1" stroke-width="2" />
+    <!-- Document header stripe -->
+    <rect x="24" y="28" width="130" height="18" rx="4" fill="#1e40af" />
+    <rect x="24" y="54" width="232" height="4" rx="2" fill="#94a3b8" />
+    
+    <!-- Table Lines -->
+    <rect x="24" y="78" width="232" height="24" rx="4" fill="#e2e8f0" />
+    <rect x="36" y="86" width="30" height="8" rx="2" fill="#64748b" />
+    <rect x="80" y="86" width="90" height="8" rx="2" fill="#64748b" />
+    <rect x="186" y="86" width="58" height="8" rx="2" fill="#64748b" />
+    
+    <!-- Row 1 -->
+    <rect x="24" y="112" width="232" height="1" fill="#e2e8f0" />
+    <rect x="36" y="122" width="24" height="6" rx="2" fill="#cbd5e1" />
+    <rect x="80" y="122" width="80" height="6" rx="2" fill="#94a3b8" />
+    <rect x="190" y="122" width="50" height="6" rx="2" fill="#64748b" />
+    
+    <!-- Row 2 -->
+    <rect x="24" y="138" width="232" height="1" fill="#e2e8f0" />
+    <rect x="36" y="148" width="24" height="6" rx="2" fill="#cbd5e1" />
+    <rect x="80" y="148" width="70" height="6" rx="2" fill="#94a3b8" />
+    <rect x="190" y="148" width="50" height="6" rx="2" fill="#64748b" />
+
+    <!-- Row 3 -->
+    <rect x="24" y="164" width="232" height="1" fill="#e2e8f0" />
+    <rect x="36" y="174" width="24" height="6" rx="2" fill="#cbd5e1" />
+    <rect x="80" y="174" width="85" height="6" rx="2" fill="#94a3b8" />
+    <rect x="190" y="174" width="50" height="6" rx="2" fill="#64748b" />
+    
+    <!-- Total Highlight Box -->
+    <rect x="110" y="200" width="146" height="34" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5" />
+    <text x="120" y="222" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#1e40af">Rp 25.500.000</text>
+    
+    <!-- Stamp Seal -->
+    <circle cx="70" cy="270" r="32" fill="none" stroke="#dc2626" stroke-width="3" stroke-dasharray="6 3" opacity="0.85" />
+    <text x="70" y="266" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="900" fill="#dc2626" letter-spacing="1">APPROVED</text>
+    <text x="70" y="278" text-anchor="middle" font-family="system-ui, sans-serif" font-size="7" font-weight="700" fill="#dc2626">OFFICIAL</text>
+    
+    <!-- Signature Line -->
+    <path d="M150 286 c 12 -14, 25 10, 40 -8 c 10 12, 28 -20, 48 -2" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="140" y1="295" x2="250" y2="295" stroke="#94a3b8" stroke-width="1" />
+  </g>
+  
+  <!-- Floating Gold Badge -->
+  <g transform="translate(320, 310)">
+    <circle cx="48" cy="48" r="46" fill="url(#goldGrad)" stroke="#ffffff" stroke-width="4" filter="drop-shadow(0 6px 12px rgba(0,0,0,0.3))" />
+    <path d="M34 50 L44 60 L64 38" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
