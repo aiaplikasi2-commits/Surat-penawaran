@@ -600,17 +600,53 @@ Hormat Kami,
 
                 {/* Symmetrical Centered Letterhead Text */}
                 <div className="text-center w-full px-16 pointer-events-none">
-                  <h4 className="font-black text-slate-900 uppercase text-sm tracking-wide">
+                  <h4 style={{ color: '#2559a0' }} className="font-black uppercase text-sm tracking-wide">
                     {activeCompany.name || 'NAMA PERUSAHAAN ANDA'}
                   </h4>
-                  <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
+                  <p className="text-[11px] text-black mt-0.5 leading-snug">
                     {activeCompany.address || 'Alamat Lengkap Perusahaan'}
                     {activeCompany.city ? `, ${activeCompany.city}` : ''}
+                    {activeCompany.postalCode ? ` ${activeCompany.postalCode}` : ''}
                   </p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">
-                    Telp: {activeCompany.phone || '021-xxxx'} | WA: {activeCompany.whatsapp || '08xx-xxxx'} | Email: {activeCompany.email || 'info@perusahaan.co.id'}
-                  </p>
-                  <div className="pt-1.5 mt-1 border-b-2 border-slate-900 w-full" />
+                  <div className="text-[10px] text-black mt-0.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5">
+                    {activeCompany.phone && <span>Telp: {activeCompany.phone}</span>}
+                    {activeCompany.phone && (activeCompany.whatsapp || activeCompany.email) && <span>|</span>}
+                    {activeCompany.whatsapp && <span>WA: {activeCompany.whatsapp}</span>}
+                    {activeCompany.whatsapp && activeCompany.email && <span>|</span>}
+                    {activeCompany.email ? (
+                      <span>
+                        Email:{' '}
+                        <a
+                          href={`mailto:${activeCompany.email}`}
+                          className="text-blue-600 underline font-semibold pointer-events-auto"
+                        >
+                          {activeCompany.email}
+                        </a>
+                      </span>
+                    ) : (
+                      <span>Email: info@perusahaan.co.id</span>
+                    )}
+                    {activeCompany.website && (
+                      <>
+                        <span>|</span>
+                        <span>
+                          Web:{' '}
+                          <a
+                            href={activeCompany.website.startsWith('http') ? activeCompany.website : `https://${activeCompany.website}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 underline font-semibold pointer-events-auto"
+                          >
+                            {activeCompany.website}
+                          </a>
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  {activeCompany.npwp && (
+                    <p className="text-[10px] text-black mt-0.5">NPWP: {activeCompany.npwp}</p>
+                  )}
+                  <div className="pt-1.5 mt-1 border-b-2 border-black w-full" />
                 </div>
               </div>
             </div>

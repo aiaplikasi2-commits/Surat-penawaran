@@ -45,6 +45,11 @@ export async function generateQuotationPdf(
 
   const npwpStr = company.npwp ? `NPWP: ${company.npwp}` : '';
 
+  // Brand Blue dari acuan gambar user (#2559a0 / RGB: 37, 89, 160)
+  const BRAND_BLUE: [number, number, number] = [37, 89, 160];
+  const LINK_BLUE: [number, number, number] = [37, 99, 235]; // Biru tautan (#2563eb)
+  const TEXT_BLACK: [number, number, number] = [0, 0, 0]; // Hitam biasa
+
   // Pengaturan Kop Surat dari Profil Perusahaan & Interaksi Preview
   const logoPos = (company.logoPosition || 'left') as 'left' | 'right' | 'top' | 'center';
   const baseLogoSizeMm = Math.min(50, Math.max(16, Number(company.logoSize) || 26));
@@ -155,16 +160,16 @@ export async function generateQuotationPdf(
   // Tulis Teks Kop Surat — SELALU RATA TENGAH (CENTER ALIGNED) DI TENGAH HALAMAN (centerX = 105mm)
   let currentTextY = textStartY;
 
-  // 1. Nama Perusahaan (Times Bold, Navy Resmi, Rata Tengah)
+  // 1. Nama Perusahaan (Times Bold, Brand Blue sesuai gambar user, Rata Tengah)
   doc.setFont('times', 'bold');
   doc.setFontSize(nameFontSize);
-  doc.setTextColor(20, 35, 75); // Royal Navy
+  doc.setTextColor(BRAND_BLUE[0], BRAND_BLUE[1], BRAND_BLUE[2]);
   doc.text(companyName, centerX, currentTextY, { align: 'center' });
 
-  // 2. Alamat Lengkap (Rata Tengah)
+  // 2. Alamat Lengkap (Rata Tengah - Hitam Biasa)
   doc.setFont('times', 'normal');
   doc.setFontSize(subFontSize);
-  doc.setTextColor(30, 41, 59);
+  doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
 
   if (addressLines.length > 0) {
     currentTextY += normalLineHeight + 1.2;
@@ -172,16 +177,114 @@ export async function generateQuotationPdf(
     currentTextY += (addressLines.length - 1) * normalLineHeight;
   }
 
-  // 3. Kontak (Telp, WA, Email, Web - Rata Tengah)
-  if (contactLines.length > 0) {
-    currentTextY += normalLineHeight + 0.6;
-    doc.text(contactLines, centerX, currentTextY, { align: 'center' });
-    currentTextY += (contactLines.length - 1) * normalLineHeight;
+  // 3. Kontak (Telp, WA, Email berbentuk tautan biru, Web - Rata Tengah)
+  interface ContactBlock {
+    segments: Array<{ text: string; color: [number, number, number]; url?: string; isLink?: boolean }>;
+  }
+  const contactBlocks: ContactBlock[] = [];
+
+  if (company.phone) {
+    contactBlocks.push({
+      segments: [{ text: `Telp: ${company.phone}`, color: TEXT_BLACK }],
+    });
+  }
+  if (company.whatsapp) {
+    contactBlocks.push({
+      segments: [{ text: `WA: ${company.whatsapp}`, color: TEXT_BLACK }],
+    });
+  }
+  if (company.email) {
+    contactBlocks.push({
+      segments: [
+        { text: 'Email: ', color: TEXT_BLACK },
+        {
+          text: company.email,
+          color: LINK_BLUE,
+          url: `mailto:${company.email}`,
+          isLink: true,
+        },
+      ],
+    });
+  }
+  if (company.website) {
+    const webUrl = company.website.startsWith('http') ? company.website : `https://${company.website}`;
+    contactBlocks.push({
+      segments: [
+        { text: 'Web: ', color: TEXT_BLACK },
+        {
+          text: company.website,
+          color: LINK_BLUE,
+          url: webUrl,
+          isLink: true,
+        },
+      ],
+    });
   }
 
-  // 4. NPWP (Rata Tengah)
+  if (contactBlocks.length > 0) {
+    currentTextY += normalLineHeight + 0.6;
+    const sepText = '   |   ';
+    const sepWidth = doc.getTextWidth(sepText);
+
+    // Hitung total lebar jika 1 baris
+    let fullWidth = 0;
+    contactBlocks.forEach((b, bIdx) => {
+      if (bIdx > 0) fullWidth += sepWidth;
+      b.segments.forEach((s) => {
+        fullWidth += doc.getTextWidth(s.text);
+      });
+    });
+
+    const renderLine = (blocks: ContactBlock[], yPos: number) => {
+      let lineWidth = 0;
+      blocks.forEach((b, bIdx) => {
+        if (bIdx > 0) lineWidth += sepWidth;
+        b.segments.forEach((s) => {
+          lineWidth += doc.getTextWidth(s.text);
+        });
+      });
+
+      let startX = centerX - lineWidth / 2;
+      blocks.forEach((b, bIdx) => {
+        if (bIdx > 0) {
+          doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
+          doc.text(sepText, startX, yPos);
+          startX += sepWidth;
+        }
+        b.segments.forEach((s) => {
+          doc.setTextColor(s.color[0], s.color[1], s.color[2]);
+          const strW = doc.getTextWidth(s.text);
+          if (s.isLink && s.url) {
+            doc.textWithLink(s.text, startX, yPos, { url: s.url });
+            // Buat garis bawah halus untuk tautan
+            doc.setDrawColor(s.color[0], s.color[1], s.color[2]);
+            doc.setLineWidth(0.18);
+            doc.line(startX, yPos + 0.35, startX + strW, yPos + 0.35);
+          } else {
+            doc.text(s.text, startX, yPos);
+          }
+          startX += strW;
+        });
+      });
+    };
+
+    if (fullWidth <= maxTextWidth) {
+      renderLine(contactBlocks, currentTextY);
+    } else {
+      // Jika terlalu panjang, bagi dua baris dengan rapi
+      const mid = Math.ceil(contactBlocks.length / 2);
+      const line1Blocks = contactBlocks.slice(0, mid);
+      const line2Blocks = contactBlocks.slice(mid);
+      renderLine(line1Blocks, currentTextY);
+      currentTextY += normalLineHeight;
+      renderLine(line2Blocks, currentTextY);
+    }
+  }
+
+  // 4. NPWP (Rata Tengah - Hitam Biasa)
   if (npwpLines.length > 0) {
     currentTextY += normalLineHeight + 0.6;
+    doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
     doc.text(npwpLines, centerX, currentTextY, { align: 'center' });
     currentTextY += (npwpLines.length - 1) * normalLineHeight;
   }
@@ -189,11 +292,11 @@ export async function generateQuotationPdf(
   // Posisi Garis Pemisah Kop Surat (di bawah elemen logo atau teks yang tertinggi)
   const kopEndY = Math.max(hasLogo ? (finalLogoY + logoHeight) : 0, currentTextY) + 3.5;
 
-  // Gambar Garis Pembatas Sesuai Gaya yang Dipilih
+  // Gambar Garis Pembatas Sesuai Gaya yang Dipilih (Hitam Biasa)
   let currentY = kopEndY + 6;
 
   if (dividerStyle === 'double') {
-    doc.setDrawColor(20, 35, 75);
+    doc.setDrawColor(0, 0, 0); // Hitam biasa
     doc.setLineWidth(1.2);
     doc.line(marginLeft, kopEndY, pageWidth - marginRight, kopEndY);
 
@@ -202,12 +305,12 @@ export async function generateQuotationPdf(
     doc.line(marginLeft, thinLineY, pageWidth - marginRight, thinLineY);
     currentY = thinLineY + 6;
   } else if (dividerStyle === 'single') {
-    doc.setDrawColor(20, 35, 75);
+    doc.setDrawColor(0, 0, 0); // Hitam biasa
     doc.setLineWidth(0.8);
     doc.line(marginLeft, kopEndY, pageWidth - marginRight, kopEndY);
     currentY = kopEndY + 6;
   } else if (dividerStyle === 'thick') {
-    doc.setDrawColor(20, 35, 75);
+    doc.setDrawColor(0, 0, 0); // Hitam biasa
     doc.setLineWidth(1.8);
     doc.line(marginLeft, kopEndY, pageWidth - marginRight, kopEndY);
     currentY = kopEndY + 6;
@@ -220,14 +323,14 @@ export async function generateQuotationPdf(
   const dateFormatted = formatIndonesianDate(quotation.date);
   const city = company.city || '';
 
-  // Tanggal & Tempat di sisi kanan atas
+  // Tanggal & Tempat di sisi kanan atas (Hitam Biasa)
   doc.setFont('times', 'normal');
   doc.setFontSize(10);
-  doc.setTextColor(30, 41, 59);
+  doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
   const placeDate = city ? `${city}, ${dateFormatted}` : dateFormatted;
   doc.text(placeDate, pageWidth - marginRight, currentY, { align: 'right' });
 
-  // Nomor, Lampiran (opsional/bisa diedit ada atau tidaknya), Perihal di kiri
+  // Nomor, Lampiran (opsional/bisa diedit ada atau tidaknya), Perihal di kiri (Hitam Biasa)
   const metaLabelX = marginLeft;
   const metaValX = marginLeft + 24;
 
@@ -252,7 +355,7 @@ export async function generateQuotationPdf(
   doc.setFont('times', 'normal');
   currentY += 7;
 
-  // Tujuan Surat (Kepada Yth)
+  // Tujuan Surat (Kepada Yth) (Hitam Biasa)
   doc.text('Kepada Yth.', marginLeft, currentY);
   currentY += 4.5;
 
@@ -282,7 +385,7 @@ export async function generateQuotationPdf(
 
   doc.setFont('times', 'normal');
   doc.setFontSize(10);
-  doc.setTextColor(30, 41, 59);
+  doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
 
   const safeOpeningWidth = contentWidth - 4;
   const openingLines = doc.splitTextToSize(openingText, safeOpeningWidth);
@@ -311,7 +414,7 @@ export async function generateQuotationPdf(
     },
     headStyles: {
       font: 'times',
-      fillColor: [30, 64, 175], // Royal Navy Blue (#1e40af)
+      fillColor: [37, 89, 160], // Brand Blue (#2559a0)
       textColor: [255, 255, 255],
       fontSize: 9,
       fontStyle: 'bold',
@@ -323,7 +426,7 @@ export async function generateQuotationPdf(
       font: 'times',
       fontSize: 8.5,
       cellPadding: 2.2,
-      textColor: [30, 41, 59],
+      textColor: [0, 0, 0], // Hitam biasa
     },
     alternateRowStyles: {
       fillColor: [248, 250, 252],
@@ -417,7 +520,7 @@ export async function generateQuotationPdf(
   // Tentukan font dan ukuran DULU sebelum splitTextToSize agar kalkulasi lebar presisi
   doc.setFont('times', 'normal');
   doc.setFontSize(9.5);
-  doc.setTextColor(30, 41, 59);
+  doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
 
   // Gunakan safe width dalam batas margin agar tidak melewati batas kanan
   const safeContentWidth = contentWidth - 4;
@@ -438,30 +541,34 @@ export async function generateQuotationPdf(
 
   doc.setFont('times', 'normal');
   doc.setFontSize(9.5);
-  doc.setTextColor(30, 41, 59);
+  doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
   doc.text('Hormat Kami,', signX, signY, { align: 'left' });
   signY += 5;
 
   doc.setFont('times', 'bold');
   doc.setFontSize(10);
+  doc.setTextColor(BRAND_BLUE[0], BRAND_BLUE[1], BRAND_BLUE[2]);
   doc.text((company.name || '').toUpperCase(), signX, signY, { align: 'left' });
   signY += 4.5;
 
-  // Stempel & Tanda Tangan
+  // Stempel & Tanda Tangan (Bertumpuk Resmi: TTD Tertimpa Stempel)
   const signAreaY = signY;
-  const signAreaHeight = 20;
+  const signAreaHeight = 22;
 
-  if (company.stampUrl && (company.stampUrl.startsWith('data:image') || company.stampUrl.startsWith('blob:') || company.stampUrl.startsWith('http'))) {
+  // 1. Gambar TTD TERLEBIH DAHULU (di bawah stempel)
+  if (company.signatureUrl && (company.signatureUrl.startsWith('data:image') || company.signatureUrl.startsWith('blob:') || company.signatureUrl.startsWith('http'))) {
     try {
-      doc.addImage(company.stampUrl, 'PNG', signX + 18, signAreaY, 20, 20, undefined, 'FAST');
+      doc.addImage(company.signatureUrl, 'PNG', signX + 4, signAreaY, 34, signAreaHeight, undefined, 'FAST');
     } catch {
       // ignore
     }
   }
 
-  if (company.signatureUrl && (company.signatureUrl.startsWith('data:image') || company.signatureUrl.startsWith('blob:') || company.signatureUrl.startsWith('http'))) {
+  // 2. Gambar STEMPEL KEDUA (menimpa di atas TTD dengan posisi tumpang-tindih resmi di sisi kiri TTD)
+  if (company.stampUrl && (company.stampUrl.startsWith('data:image') || company.stampUrl.startsWith('blob:') || company.stampUrl.startsWith('http'))) {
     try {
-      doc.addImage(company.signatureUrl, 'PNG', signX, signAreaY, 28, signAreaHeight, undefined, 'FAST');
+      // Posisi stempel menumpuk 40%-50% di atas tanda tangan sebelah kiri
+      doc.addImage(company.stampUrl, 'PNG', signX - 2, signAreaY - 1, 23, 23, undefined, 'FAST');
     } catch {
       // ignore
     }
@@ -476,11 +583,11 @@ export async function generateQuotationPdf(
   if (directorName) {
     doc.setFont('times', 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(20, 35, 75);
+    doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
     doc.text(directorName, signX, signY);
 
     const nameWidth = doc.getTextWidth(directorName);
-    doc.setDrawColor(20, 35, 75);
+    doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.4);
     doc.line(signX, signY + 0.8, signX + nameWidth, signY + 0.8);
 
@@ -489,7 +596,7 @@ export async function generateQuotationPdf(
 
   doc.setFont('times', 'normal');
   doc.setFontSize(9);
-  doc.setTextColor(71, 85, 105);
+  doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
   doc.text(directorTitle, signX, signY);
   signY += 6; // Jarak setelah tanda tangan selesai
 
@@ -523,14 +630,14 @@ export async function generateQuotationPdf(
 
     // Desain Box Resmi di Sisi Kiri
     doc.setFillColor(248, 250, 252); // slate-50 lembut
-    doc.setDrawColor(203, 213, 225); // slate-300
+    doc.setDrawColor(0, 0, 0); // border hitam
     doc.setLineWidth(0.3);
     doc.roundedRect(marginLeft, notesY, notesWidth, boxHeight, 1.5, 1.5, 'FD');
 
     // Judul Box Ketentuan Resmi
     doc.setFont('times', 'bold');
     doc.setFontSize(8.5);
-    doc.setTextColor(20, 35, 75); // Royal Navy
+    doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
     doc.text('KETENTUAN & SYARAT PEMBAYARAN :', marginLeft + 4, notesY + 5.5);
 
     let curLineY = notesY + 10;
@@ -540,11 +647,11 @@ export async function generateQuotationPdf(
     if (validityLines.length > 0) {
       doc.setFont('times', 'bold');
       doc.setFontSize(8.2);
-      doc.setTextColor(30, 41, 59);
+      doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
       doc.text(`${stepNum}. Masa Berlaku`, marginLeft + 4, curLineY);
 
       doc.setFont('times', 'normal');
-      doc.setTextColor(51, 65, 85);
+      doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
       doc.text(validityLines, marginLeft + 4 + labelColWidth, curLineY);
       curLineY += validityLines.length * 4.2;
       stepNum++;
@@ -554,11 +661,11 @@ export async function generateQuotationPdf(
     if (schemeLines.length > 0) {
       doc.setFont('times', 'bold');
       doc.setFontSize(8.2);
-      doc.setTextColor(30, 41, 59);
+      doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
       doc.text(`${stepNum}. Skema Pembayaran`, marginLeft + 4, curLineY);
 
       doc.setFont('times', 'normal');
-      doc.setTextColor(51, 65, 85);
+      doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
       doc.text(schemeLines, marginLeft + 4 + labelColWidth, curLineY);
       curLineY += schemeLines.length * 4.2;
       stepNum++;
@@ -568,11 +675,11 @@ export async function generateQuotationPdf(
     if (notesLines.length > 0) {
       doc.setFont('times', 'bold');
       doc.setFontSize(8.2);
-      doc.setTextColor(30, 41, 59);
+      doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
       doc.text(`${stepNum}. Rekening / Catatan`, marginLeft + 4, curLineY);
 
       doc.setFont('times', 'normal');
-      doc.setTextColor(51, 65, 85);
+      doc.setTextColor(TEXT_BLACK[0], TEXT_BLACK[1], TEXT_BLACK[2]);
       doc.text(notesLines, marginLeft + 4 + labelColWidth, curLineY);
     }
   }
@@ -609,21 +716,7 @@ export async function generateQuotationPdf(
       doc.restoreGraphicsState();
     }
 
-    // Garis tipis footer
-    doc.setDrawColor(226, 232, 240);
-    doc.setLineWidth(0.3);
-    doc.line(marginLeft, pageHeight - 12, pageWidth - marginRight, pageHeight - 12);
-
-    // Teks Footer
-    doc.setFont('times', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(148, 163, 184);
-
-    const docRef = `${quotation.quotationNumber}  •  Dicetak: ${todayFormatted}`;
-    doc.text(docRef, marginLeft, pageHeight - 8);
-
-    const pageStr = `Halaman ${i} dari ${totalPages}`;
-    doc.text(pageStr, pageWidth - marginRight, pageHeight - 8, { align: 'right' });
+    // Garis & Teks Footer Dihapus Sesuai Permintaan User
   }
 
   const fileName =

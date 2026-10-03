@@ -222,8 +222,9 @@ export const CompaniesPage: React.FC = () => {
                         <h3
                           style={{
                             fontSize: `${comp.companyNameSize ? comp.companyNameSize * 1.05 : 19}px`,
+                            color: '#2559a0',
                           }}
-                          className="font-black text-slate-900 tracking-wide uppercase leading-tight"
+                          className="font-black tracking-wide uppercase leading-tight"
                         >
                           {comp.name || 'NAMA PERUSAHAAN'}
                         </h3>
@@ -231,7 +232,7 @@ export const CompaniesPage: React.FC = () => {
                           style={{
                             fontSize: `${comp.companyDetailsSize ? comp.companyDetailsSize * 1.15 : 11}px`,
                           }}
-                          className="text-slate-700 mt-1 leading-relaxed"
+                          className="text-black mt-1 leading-relaxed"
                         >
                           {comp.address}
                           {comp.city ? `, ${comp.city}` : ''}
@@ -241,7 +242,7 @@ export const CompaniesPage: React.FC = () => {
                           style={{
                             fontSize: `${comp.companyDetailsSize ? comp.companyDetailsSize * 1.05 : 10}px`,
                           }}
-                          className={`flex flex-wrap gap-x-3 gap-y-0.5 text-slate-600 mt-1 font-medium ${
+                          className={`flex flex-wrap gap-x-3 gap-y-0.5 text-black mt-1 font-medium ${
                             headerAlign === 'center'
                               ? 'justify-center'
                               : headerAlign === 'right'
@@ -251,15 +252,37 @@ export const CompaniesPage: React.FC = () => {
                         >
                           {comp.phone && <span>Telp: {comp.phone}</span>}
                           {comp.whatsapp && <span>WA: {comp.whatsapp}</span>}
-                          {comp.email && <span>Email: {comp.email}</span>}
-                          {comp.website && <span>Web: {comp.website}</span>}
+                          {comp.email && (
+                            <span>
+                              Email:{' '}
+                              <a
+                                href={`mailto:${comp.email}`}
+                                className="text-blue-600 underline font-semibold hover:text-blue-800"
+                              >
+                                {comp.email}
+                              </a>
+                            </span>
+                          )}
+                          {comp.website && (
+                            <span>
+                              Web:{' '}
+                              <a
+                                href={comp.website.startsWith('http') ? comp.website : `https://${comp.website}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 underline font-semibold hover:text-blue-800"
+                              >
+                                {comp.website}
+                              </a>
+                            </span>
+                          )}
                         </div>
                         {comp.npwp && (
                           <p
                             style={{
                               fontSize: `${comp.companyDetailsSize ? comp.companyDetailsSize * 1.05 : 10}px`,
                             }}
-                            className="text-slate-700 font-semibold mt-0.5"
+                            className="text-black font-semibold mt-0.5"
                           >
                             NPWP: {comp.npwp}
                           </p>
@@ -271,12 +294,12 @@ export const CompaniesPage: React.FC = () => {
                     <div className="pt-2">
                       {dividerStyle === 'double' && (
                         <div>
-                          <div className="h-[2px] bg-slate-800 w-full" />
-                          <div className="h-[0.7px] bg-slate-800 w-full mt-[1.5px]" />
+                          <div className="h-[2px] bg-black w-full" />
+                          <div className="h-[0.7px] bg-black w-full mt-[1.5px]" />
                         </div>
                       )}
-                      {dividerStyle === 'single' && <div className="h-[1.2px] bg-slate-800 w-full" />}
-                      {dividerStyle === 'thick' && <div className="h-[3px] bg-slate-900 w-full" />}
+                      {dividerStyle === 'single' && <div className="h-[1.2px] bg-black w-full" />}
+                      {dividerStyle === 'thick' && <div className="h-[3px] bg-black w-full" />}
                       {dividerStyle === 'none' && <div className="h-0" />}
                     </div>
                   </div>
@@ -675,8 +698,9 @@ export const CompaniesPage: React.FC = () => {
                         <h4
                           style={{
                             fontSize: `${(editingCompany.companyNameSize || 18) * 0.9}px`,
+                            color: '#2559a0',
                           }}
-                          className="font-bold text-slate-900 uppercase tracking-wide leading-tight"
+                          className="font-bold uppercase tracking-wide leading-tight"
                         >
                           {editingCompany.name || 'NAMA PERUSAHAAN ANDA'}
                         </h4>
@@ -684,21 +708,31 @@ export const CompaniesPage: React.FC = () => {
                           style={{
                             fontSize: `${(editingCompany.companyDetailsSize || 9.5) * 1.05}px`,
                           }}
-                          className="text-slate-700 mt-0.5 leading-snug"
+                          className="text-black mt-0.5 leading-snug"
                         >
                           {editingCompany.address || 'Alamat lengkap kantor pusat / cabang'}
                           {editingCompany.city ? `, ${editingCompany.city}` : ''}
                         </p>
-                        <p
+                        <div
                           style={{
                             fontSize: `${(editingCompany.companyDetailsSize || 9.5) * 0.95}px`,
                           }}
-                          className="text-slate-500 mt-0.5"
+                          className="text-black mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5"
                         >
-                          Telp: {editingCompany.phone || '021-xxxx'} | WA:{' '}
-                          {editingCompany.whatsapp || '08xx-xxxx'} | Email:{' '}
-                          {editingCompany.email || 'info@perusahaan.co.id'}
-                        </p>
+                          <span>Telp: {editingCompany.phone || '021-xxxx'}</span>
+                          <span>|</span>
+                          <span>WA: {editingCompany.whatsapp || '08xx-xxxx'}</span>
+                          <span>|</span>
+                          <span>
+                            Email:{' '}
+                            <a
+                              href={`mailto:${editingCompany.email || 'info@perusahaan.co.id'}`}
+                              className="text-blue-600 underline font-semibold"
+                            >
+                              {editingCompany.email || 'info@perusahaan.co.id'}
+                            </a>
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -706,15 +740,15 @@ export const CompaniesPage: React.FC = () => {
                     <div className="pt-2">
                       {(editingCompany.letterheadDividerStyle || 'double') === 'double' && (
                         <div>
-                          <div className="h-[1.8px] bg-slate-900 w-full" />
-                          <div className="h-[0.5px] bg-slate-900 w-full mt-[1.5px]" />
+                          <div className="h-[1.8px] bg-black w-full" />
+                          <div className="h-[0.5px] bg-black w-full mt-[1.5px]" />
                         </div>
                       )}
                       {editingCompany.letterheadDividerStyle === 'single' && (
-                        <div className="h-[1px] bg-slate-900 w-full" />
+                        <div className="h-[1px] bg-black w-full" />
                       )}
                       {editingCompany.letterheadDividerStyle === 'thick' && (
-                        <div className="h-[2.5px] bg-slate-950 w-full" />
+                        <div className="h-[2.5px] bg-black w-full" />
                       )}
                     </div>
                   </div>

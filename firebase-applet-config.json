@@ -1,12 +1,12 @@
 {
-  "projectId": "river-nation-mpthm",
-  "appId": "1:1026608366984:web:0b45f353a3ff43bb0d263d",
-  "apiKey": "AIzaSyAN7mgOiJrOGYWgNv1dH8UpkmNoXcjA4YY",
-  "authDomain": "river-nation-mpthm.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-remixsuratpenawa-65827c1b-93d8-49b1-a4e1-60d7afafce2a",
-  "storageBucket": "river-nation-mpthm.firebasestorage.app",
-  "messagingSenderId": "1026608366984",
-  "measurementId": "",
-  "oAuthClientId": "1026608366984-82r4e3520vu1vgmhn63e8frqmi5i5rhh.apps.googleusercontent.com",
+  "projectId": "surat-penawaran-c4e58",
+  "appId": "1:78133934894:web:ae897932cf5577c1b398bf",
+  "apiKey": "AIzaSyBYdC9xdrlzirtO5Qq6yYGqFdpcdZOUiE8",
+  "authDomain": "surat-penawaran-c4e58.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "surat-penawaran-c4e58.firebasestorage.app",
+  "messagingSenderId": "78133934894",
+  "measurementId": "G-82Q9QEKVP1",
+  "oAuthClientId": "",
   "recaptchaSiteKey": ""
 }
